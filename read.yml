@@ -1,0 +1,26 @@
+---
+- name: "reading file"
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    vars.yml
+
+  tasks:
+  - name: "Reading Hosts Files"
+    read_csv:
+      delimiter: ','
+      skipinitialspace: yes
+      path: rhosts.csv
+    register: rhosts
+    delegate_to: localhost
+  - name: "Write out"
+    debug:
+      msg: "Host IP: {{ host.ipaddr }} Password: {{ host.password }}"
+    loop: "{{ rhosts.list }}"
+    loop_control:
+      loop_var: host
+
+  - name: debugging
+    debug:
+      msg: "{{ greetings }} {{ profile }}"
+
