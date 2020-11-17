@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  roles:
+    - consul
+  become: yes
+  any_errors_fatal: true
+  vars:
+    - is_server: "true"
+    - bootstrap_expect: "3"
+    - type: "consul-server"

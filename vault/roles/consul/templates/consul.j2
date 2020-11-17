@@ -1,0 +1,18 @@
+{
+  "datacenter": "datacenter-aws",
+  "bind_addr": "{{ ansible_eth0.ipv4.address }}",
+  "client_addr": "0.0.0.0",
+  "data_dir": "/opt/consul",
+  "log_level": "INFO",
+  "node_name": "{{ type }}-{{ ansible_hostname }}",
+  "bootstrap_expect": {{ bootstrap_expect }},
+  "server": {{ is_server }},
+  "retry_join": [
+    "provider=aws tag_key=vault_consul_member tag_value=join"
+  ],
+  "leave_on_terminate": false,
+  "rejoin_after_leave": true,
+  "advertise_addr": "{{ ansible_eth0.ipv4.address }}",
+  "ui": true,
+  "enable_syslog": true
+}

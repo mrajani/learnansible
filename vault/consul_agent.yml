@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  connection: local
+  roles:
+    - consul
+  become: yes
+  any_errors_fatal: true
+  vars:
+    - is_server: "false"
+    - bootstrap_expect: "0"
+    - type: "vault-agent"
+

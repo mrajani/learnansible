@@ -1,0 +1,5 @@
+---
+- hosts: "{{ vault_host | default('localhost') }}"
+  roles:
+    - singlenode
+  become: yes
