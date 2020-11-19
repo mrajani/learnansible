@@ -4,4 +4,5 @@ is_server: "true"
 bootstrap_expect: "1"
 datacenter: "iono-dc1"
 type: "consul_server"
+ansible_python_interpreter: '/usr/bin/env python3'
 
