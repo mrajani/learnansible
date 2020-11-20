@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- hosts: "{{ nginx_host | default('localhost') }}"
+  gather_facts: true
   become: yes
   vars_files:
     - vars/main.yml
@@ -19,8 +20,8 @@
         path: /var/www/{{ domain }}
         state: directory
         mode: "0775"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
+        owner: "{{ ansible_env.USER }}"
+        group: "{{ ansible_env.USER }}"
 
     - name: Delete Default NGINX Site
       file:
