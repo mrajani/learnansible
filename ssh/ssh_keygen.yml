@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  vars:
+    - sshkey: lnxa_rsa
+  tasks:
+    - name: Generate Key pair for ACG
+      community.crypto.openssh_keypair:
+        path: "{{ lookup('env', 'HOME') }}/.ssh/{{ sshkey }}"
+        comment: SSHkey_for_ACG

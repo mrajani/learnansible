@@ -1,0 +1,3 @@
+Host *.mylabserver.com
+IdentityFile ~/.ssh/lnxa_rsa
+User cloud_user
