@@ -4,6 +4,6 @@ localhost
 
 [vault]
 
-[onenode]
-
+[singlenode]
+99aff3d11d1c.mylabserver.com
 

@@ -1,19 +1,36 @@
 server {
   listen 80;
-  server_name localhost;
-  proxy_redirect off;
-  proxy_set_header Host $http_host;
+  server_name 99aff3d11d1c.mylabserver.com localhost;
+
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_set_header Host $host;
   proxy_set_header X-Real-IP $remote_addr;
   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
   proxy_set_header X-Forwarded-Proto $scheme;
 
-  location /consul/ {
-    #rewrite ^/consul/(.*) $1 break;
-    proxy_pass http://localhost:8500/ui/;
-  }
-
-  location /vault/ {
-    #rewrite ^/vault/(.*) $1 break;
-    proxy_pass http://localhost:8200/ui/;
+  location / {
+    proxy_pass http://localhost:8200;
   }
 }
+
+server {
+  listen 80;
+  server_name 99aff3d11d1d.mylabserver.com localhost;
+
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
+
+  location / {
+    proxy_pass http://localhost:8500/;
+    # proxy_redirect $scheme://$host/ /consul/;
+    # proxy_redirect $scheme://$host:$server_port/ /consul/;
+  }
+}
+
