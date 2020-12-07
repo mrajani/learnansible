@@ -1,0 +1,41 @@
+---
+- hosts: localhost
+  gather_facts: true
+  vars:
+    - certs_folder: ./certificates
+    - server_hostname: vaultraft.local
+    - key_size: 4096
+    - passphrase: # Set if you want passphrase
+    - key_type: RSA # Others include DSA, ECC, Ed25519, Ed448, X25519, X448
+    - country_name: US
+    - email_address: admin@vault.local
+    - organization_name: Vault-Raft
+  tasks:
+
+    - name: Create certificates folder
+      file:
+        path: "{{certs_folder}}"
+        state: directory
+        group: "{{ ansible_user }}"
+        owner: "{{ ansible_user }}"
+
+    - name: Generate an OpenSSL private key
+      openssl_privatekey:
+        path: "{{certs_folder}}/{{ server_hostname }}.key.pem"
+        size: "{{ key_size }}"
+        type: "{{ key_type }}"
+        backup: yes
+    - name: Generate an OpenSSL Certificate Signing Request with Subject information
+      openssl_csr:
+        path: "{{certs_folder}}/{{ server_hostname }}.csr"
+        privatekey_path: "{{certs_folder}}/{{ server_hostname }}.key.pem"
+        country_name: "{{ country_name }}"
+        organization_name: "{{ organization_name }}"
+        email_address: "{{ email_address }}"
+        common_name: "{{ server_hostname }}"
+    - name: Generate a Self Signed OpenSSL certificate
+      openssl_certificate:
+        path: "{{certs_folder}}/{{ server_hostname }}.cert.pem"
+        privatekey_path: "{{certs_folder}}/{{ server_hostname }}.key.pem"
+        csr_path: "{{certs_folder}}/{{ server_hostname }}.csr"
+        provider: selfsigned
