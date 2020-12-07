@@ -1,0 +1,10 @@
+---
+- hosts: "{{ la_hosts | default('localhost') }}"
+  gather_facts: True
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: "Create SSH Key Pair"
+      community.crypto.openssh_keypair:
+        path: /tmp/id_ssh_rsa
+        comment: "ACG_Key_Pair"
