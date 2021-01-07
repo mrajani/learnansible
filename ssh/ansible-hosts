@@ -1,3 +1,11 @@
-[acg]
-99aff3d11d1c.mylabserver.com
+[acg1]
+la1 
+la2
 
+[acg2]
+la3
+la4
+
+[acg:children]
+acg1
+acg2

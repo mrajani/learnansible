@@ -1,8 +1,8 @@
 ---
-- hosts: acg
+- hosts: "{{ myhosts | default('acg') }}"
   gather_facts: true
   vars:
-    - sshkey: lnxa_rsa
+    - sshkey: "{{ key_name }}"
   tasks:
     - name: Copy SSH Pub Key to Remote Server
       ansible.posix.authorized_key:

@@ -1,3 +1,14 @@
-Host *.mylabserver.com
-IdentityFile ~/.ssh/lnxa_rsa
-User cloud_user
+Host la1
+  HostName 67d997fcb21c.mylabserver.com
+Host la2
+  HostName 019a38d2d41c.mylabserver.com
+Host la3
+  HostName 6eb6b19b1e1c.mylabserver.com
+Host la4
+  HostName fef60a7fb31c.mylabserver.com
+
+Host la*
+  IdentityFile ~/.ssh/lnxa_rsa
+  User cloud_user
+  StrictHostKeyChecking no
+  ForwardAgent Yes
