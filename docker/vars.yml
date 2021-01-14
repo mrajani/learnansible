@@ -2,5 +2,10 @@
 users:
   - ansible
   - docker
-ssh_key_file: ~/.ssh/lnxa_rsa
-docker_version: 5:19.03.13~3-0~ubuntu-focal
+  - cloud_user
+docker_version: 5:20.10.2~3-0~ubuntu-focal
+docker_compose_dl_url: https://github.com/docker/compose/releases
+
+docker_volume: vault_db_vol
+docker_network: vault_db_net
+db_name: vault_db
