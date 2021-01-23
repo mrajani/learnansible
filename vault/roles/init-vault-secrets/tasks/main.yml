@@ -1,0 +1,13 @@
+---
+# tasks file for init-vault-secrets
+- name: Read Root Key
+  shell: cat "{{root_token_dir_output}}/rootkey"
+  register: rootkey
+  delegate_to: localhost
+  connection: local
+
+- name: Create Shell Script for Initializing Vault Secrets
+  template:
+    src:  init-vault-secrets.sh.j2
+    dest: /tmp/init-vault-secrets.sh
+    mode: '0755'

@@ -1,0 +1,145 @@
+---
+- name: Update Cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install a list of packages
+  become: yes
+  apt:
+    pkg:
+    - unzip
+    - net-tools
+    - jq
+
+- name: Download Consul executable
+  get_url:
+    url: https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip
+    dest: /tmp/consul.zip
+
+- name: Create consul group
+  group:
+    name: consul
+
+- name: Create consul user
+  user:
+    name: consul
+    group: consul
+
+- name: Unzip consul to /usr/local/bin
+  unarchive:
+    src: /tmp/consul.zip
+    dest: /usr/local/bin
+    remote_src: yes
+    group: consul
+    owner: consul
+
+- name: Create installation directories for consul config and logging
+  file:
+    path: "{{ item }}"
+    state: directory
+    group: consul
+    owner: consul
+  with_items:
+    - /opt/consul
+    - /etc/consul.d
+
+- name: Copy consul config over
+  template:
+    src: consul.j2
+    dest: /etc/consul.d/consul.json
+    owner: consul
+    group: consul
+
+- name: Copy over consul systemctl config
+  copy:
+    src: consul.service
+    dest: /lib/systemd/system/consul.service
+    group: consul
+    owner: consul
+
+- name: Restart systemctl daemon
+  shell: systemctl daemon-reload
+
+- name: Enable consul agent
+  shell: systemctl enable consul
+
+- name: Start consul agent
+  shell: systemctl start consul
+
+- name: Download Vault executable
+  get_url:
+    url: https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version }}_linux_amd64.zip
+    dest: /tmp/vault.zip
+
+- name: Create vault group
+  group:
+    name: vault
+
+- name: Create vault user
+  user:
+    name: vault
+    group: vault
+
+- name: Unzip vault to /usr/local/bin
+  unarchive:
+    src: /tmp/vault.zip
+    dest: /usr/local/bin
+    remote_src: yes
+    group: vault
+    owner: vault
+
+- name: Create installation directories for vault config and logging
+  file:
+    path: "{{ item }}"
+    state: directory
+    group: vault
+    owner: vault
+  with_items:
+    - /opt/vault
+    - /etc/vault.d
+
+- name: Copy vault config over
+  template:
+    src: vault.j2
+    dest: /etc/vault.d/vault.hcl
+    owner: vault
+    group: vault
+
+- name: Copy over vault systemctl config
+  copy:
+    src: vault.service
+    dest: /lib/systemd/system/vault.service
+    group: vault
+    owner: vault
+
+- name: Restart systemctl daemon
+  shell: systemctl daemon-reload
+
+- name: Enable vault server
+  shell: systemctl enable vault
+
+- name: Start vault server
+  shell: systemctl start vault
+
+#---- Vault Initialization and Unseal -------#
+- name: Is the Vault Initialized
+  set_fact:
+    cachaeable: yes
+    initialized: false
+
+- name: Verify Vault Initialized
+  environment:
+    VAULT_ADDR: "http://127.0.0.1:8200"
+  command: /usr/local/bin/vault operator init -status -tls-skip-verify
+  ignore_errors: true
+  changed_when:
+    - status.rc == 2
+    - '"Vault is not initialized" in status.stdout'
+  register: status
+
+- include: init.yml
+  when: '"Vault is not initialized" in status.stdout'
+
+- include: unseal.yml
+  when: '"Vault is initialized" in status.stdout'

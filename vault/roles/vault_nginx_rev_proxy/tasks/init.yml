@@ -1,0 +1,57 @@
+---
+- name: Initialize Vault if not initialized
+  environment:
+    VAULT_ADDR: "http://127.0.0.1:8200"
+  command: /usr/local/bin/vault operator init -key-shares=5 -key-threshold=3 -format json -tls-skip-verify
+  register: unseal_keys
+  when: '"Vault is not initialized" in status.stdout'
+
+- name: Parse output of vault init
+  set_fact:
+    initialized: true
+    vault_unseal_keys: "{{ unseal_keys.stdout | from_json }}"
+  when: '"Vault is not initialized" in status.stdout'
+
+- name: Create unseal directories
+  file:
+    path: "{{ unseal_keys_dir_output }}"
+    state: directory
+  delegate_to: localhost
+  connection: local
+
+- name: Create root key directories
+  file:
+    path: "{{ root_token_dir_output }}"
+    state: directory
+  delegate_to: localhost
+  connection: local
+
+- name: Write unseal keys to files
+  copy:
+    dest: "{{ unseal_keys_dir_output }}/unseal_key_{{ item.0 }}"
+    content: "{{ item.1 }}\n"
+  with_indexed_items: "{{ vault_unseal_keys.unseal_keys_hex }}"
+  delegate_to: localhost
+  connection: local
+
+- name: Write unseal keys to files
+  lineinfile:
+    path: "/tmp/unseal_keys"
+    line: "{{ item.1 }}"
+  with_indexed_items: "{{ vault_unseal_keys.unseal_keys_hex }}"
+  delegate_to: localhost
+  connection: local
+
+- name: Write root token to file
+  copy:
+    content: "{{ vault_unseal_keys.root_token }}"
+    dest: "{{root_token_dir_output}}/rootkey"
+  delegate_to: localhost
+  connection: local
+
+- name: Re Run Vault Init Check
+  environment:
+    VAULT_ADDR: "http://127.0.0.1:8200"
+  command: /usr/local/bin/vault operator init -status -tls-skip-verify
+  ignore_errors: true
+  register: status

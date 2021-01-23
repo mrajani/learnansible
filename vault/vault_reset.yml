@@ -1,0 +1,19 @@
+---
+- hosts: "{{ server_hosts | default('acg') }}"
+  become: yes
+  vars:
+    - sshkey: "{{ key_name }}"
+  tasks:
+    - name: Stop Vault Service
+      systemd:
+        state: stopped
+        name: vault
+
+    - name: Delete vault/ backend in Consul
+      become_user: consul
+      shell: consul kv delete -recurse vault/
+
+    - name: Start Vault Service
+      systemd:
+        state: started
+        name: vault

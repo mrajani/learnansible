@@ -1,0 +1,131 @@
+#################################################
+# Playbook to install Docker and other things
+#################################################
+---
+- name: Create {{ users }} user
+  user:
+    name: "{{ user }}"
+    state: present
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: user
+
+- name: Add the users to 'docker' group to run cmd without sudo
+  user:
+    name: "{{ user }}"
+    groups: docker
+    append: yes
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: user
+
+- name: allow {{ users }} to have passwordless sudo
+  lineinfile:
+    create: yes
+    dest: /etc/sudoers.d/{{ user }}
+    line: '{{ user }} ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: user
+
+- name: Install aptitude using apt
+  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+- name: Install required system packages
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'python3-setuptools']
+
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo:  deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Install docker-ce docker-ce-cli containerd.io
+  apt:
+    pkg:
+      - docker-ce-cli={{ docker_version }}
+      - docker-ce={{ docker_version }}
+      - containerd.io
+
+- name: Update apt and install docker-ce-cli {{ docker_version }}
+  uri:
+    url: "{{ docker_compose_dl_url }}/latest"
+    follow_redirects: safe
+  register: url_path
+
+- name: Set Fact latest version of Docker Compose
+  set_fact:
+    dc_version: "{{  url_path.url | regex_replace('https://.*/tag/', '') }}"
+
+- name: Install docker-compose
+  get_url:
+    url : "{{ docker_compose_dl_url }}/download/{{ dc_version }}/docker-compose-{{ ansible_system }}-{{ ansible_architecture }}"
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+
+- name: Install Docker Python Library
+  pip:
+    name: docker
+
+- name: Create Docker volumes
+  docker_volume:
+    name: "{{ item }}"
+  with_items:
+    - "{{ mysql_vol }}"
+    - "{{ mariadb_vol }}"
+    - "{{ pgsql_vol }}"
+
+- name: Create Docker networks
+  tags: network
+  docker_network:
+    name: "{{ network }}"
+    ipam_config:
+      - subnet: 172.28.27.0/24
+        gateway: 172.28.27.1
+        iprange: 172.28.27.0/26
+
+- name: Launch MySQL database container
+  tags: mysql
+  docker_container:
+    name: "{{ mysql_db }}"
+    image: "{{ mysql_image }}"
+    ports:
+      - "0.0.0.0:3306:3306"
+    volumes:
+      - "{{ mysql_vol }}:/var/lib/mysql:rw"
+    restart: true
+    networks:
+      - name: "{{ network }}"
+        aliases:
+          -  "{{ mysql_db }}"
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ vault_db_password }}"
+      MYSQL_DATABASE: "{{ vault_app_db }}"
+      MYSQL_USER: "{{ vault_db_user }}"
+      MYSQL_PASSWORD: "{{ vault_db_password }}"
+
+- name: Launch Postgres database container
+  tags: pgsql
+  docker_container:
+    name: "{{ pgsql_db }}"
+    image: "{{ pgsql_image }}"
+    ports:
+      - "0.0.0.0:5432:5432"
+    volumes:
+      - "{{ pgsql_vol }}:/var/lib/postgresql/data:rw"
+    restart: true
+    networks:
+      - name: "{{ network }}"
+        aliases:
+          - "{{ pgsql_db }}"
+    env:
+      POSTGRES_PASSWORD: "{{ vault_db_password }}"
+      POSTGRES_DB: "{{ vault_app_db }}"
+      POSTGRES_USER: "{{ vault_db_user }}"
+      POSTGRES_INITDB_ARGS: "--data-checksums"

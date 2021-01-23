@@ -1,0 +1,26 @@
+---
+- hosts: "{{ server_hosts | default('acg') }}"
+  become: yes
+  become_user: docker
+  vars:
+    - sshkey: "{{ key_name }}"
+  tasks:
+    - name: Find all containers
+      shell: docker ps -a --format {{ "{{.ID}}" }}
+      register: containers
+
+    - name: Stop all running containers
+      shell: docker stop {{ item }}
+      with_items: "{{ containers.stdout_lines | list }}"
+
+    - name: Delete all containers
+      shell: docker rm {{ item }}
+      with_items: "{{ containers.stdout_lines | list }}"
+
+    - name: Find all images
+      shell: docker images -a --format {{ "{{.ID}}" }}
+      register: images
+
+    - name: Delete all images
+      shell: docker image rm {{ item }}
+      with_items: "{{ images.stdout_lines | list }}"

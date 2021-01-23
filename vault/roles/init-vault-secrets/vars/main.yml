@@ -1,0 +1,25 @@
+---
+# vars file for init-vault-secrets
+
+db_name: biz_app
+db_user: vault_admin
+db_password: vault
+
+vault_app_db: biz_app
+vault_db_user: vault_admin
+vault_db_password: vault
+
+network: vault_db_net
+mysql_image: mysql:5.7
+mysql_vol: vault_my_vol
+mysql_db: vault_my_db
+mysql_config_path: mysql/crm/customer
+
+mariadb_image: mariadb:10.5.8-focal
+mariadb_vol: vault_mariabdb_vol
+mariadb_db: vault_mariadb_db
+
+pgsql_image: postgres:13.1-alpine
+pgsql_vol: vault_pgsql_vol
+pgsql_db: vault_pgsql_db
+pgsql_config_path: pgsql/sales/vendor
