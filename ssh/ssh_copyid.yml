@@ -1,5 +1,5 @@
 ---
-- hosts: "{{ myhosts | default('acg') }}"
+- hosts: "{{ server_hosts | default('acg') }}"
   gather_facts: true
   vars:
     - sshkey: "{{ key_name }}"
