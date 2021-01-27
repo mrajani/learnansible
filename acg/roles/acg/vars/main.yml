@@ -1,0 +1,9 @@
+---
+packages:
+  - unzip
+  - net-tools
+  - jq
+  - sshpass
+  - python3-pip
+timezone: America/Los_Angeles
+tf_ver: 0.14

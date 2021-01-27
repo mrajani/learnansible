@@ -1,0 +1,11 @@
+
+- name: start vault
+  service:
+    name: vault
+    enabled: yes
+    state: stopped
+
+- name: restart vault
+  service:
+    name: vault
+    state: restarted

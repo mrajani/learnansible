@@ -1,0 +1,24 @@
+---
+users:
+  - ansible
+  - docker
+  - cloud_user
+docker_version: 5:20.10.2~3-0~ubuntu-{{ ansible_distribution_release }}
+docker_compose_dl_url: https://github.com/docker/compose/releases
+
+vault_app_db: biz_app
+vault_db_user: vault_admin
+vault_db_password: vault
+
+network: vault_db_net
+mysql_image: mysql:5.7
+mysql_vol: vault_my_vol
+mysql_db: vault_my_db
+
+mariadb_image: mariadb:10.5.8-{{ ansible_distribution_release }}
+mariadb_vol: vault_mariabdb_vol
+mariadb_db: vault_mariadb_db
+
+pgsql_image: postgres:13.1-alpine
+pgsql_vol: vault_pgsql_vol
+pgsql_db: vault_pgsql_db

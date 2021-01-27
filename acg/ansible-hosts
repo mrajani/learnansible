@@ -1,1 +1,9 @@
-[acg]
+[acg1]
+la2 
+la1
+
+[acg2]
+
+[acg:children]
+acg1
+acg2

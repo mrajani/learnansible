@@ -1,10 +1,11 @@
 ---
-- hosts: "{{ la_hosts | default('localhost') }}"
-  gather_facts: True
-  vars_files:
-    - vars.yml
-  tasks:
-    - name: "Create SSH Key Pair"
-      community.crypto.openssh_keypair:
-        path: /tmp/id_ssh_rsa
-        comment: "ACG_Key_Pair"
+# export ANSIBLE_CONFIG=/tmp/ansible.cfg
+# ansible-playbook -e server_hosts=la2 main.yml
+#
+- hosts: "{{ server_hosts }}"
+  roles:
+    - { role: acg, tags: [acg]}
+    - { role: docker, become: yes, tags: [docker]}
+    - { role: vault, become: yes, tags: [vault] }
+    - { role: nginx, become: yes, tags: [nginx] }
+  any_errors_fatal: true

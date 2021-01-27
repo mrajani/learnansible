@@ -1,0 +1,11 @@
+Host la1
+  HostName bd569e76551c.example.com
+
+Host la2 
+  HostName e5be375faa1c.example.com
+
+Host la*
+  IdentityFile ~/.ssh/lnxa_rsa
+  User cloud_user
+  StrictHostKeyChecking no
+  ForwardAgent Yes
