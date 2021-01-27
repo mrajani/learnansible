@@ -1,5 +1,5 @@
 ---
-# ansible-playbook -e server_hosts=la2 -e key_name=lnxa_rsa -k -K ssh_copyid.yml
+# ansible-playbook -e server_hosts=acg1 -e key_name=lnxa_rsa -k -K ssh_copyid.yml
 - hosts: "{{ server_hosts | default('acg') }}"
   gather_facts: true
   vars:
