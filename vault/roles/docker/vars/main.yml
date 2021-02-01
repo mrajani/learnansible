@@ -3,7 +3,7 @@ users:
   - ansible
   - docker
   - cloud_user
-docker_version: 5:20.10.2~3-0~ubuntu-focal
+docker_version: 5:20.10.2~3-0~ubuntu-{{ ansible_distribution_release }}
 docker_compose_dl_url: https://github.com/docker/compose/releases
 
 vault_app_db: biz_app
@@ -15,7 +15,7 @@ mysql_image: mysql:5.7
 mysql_vol: vault_my_vol
 mysql_db: vault_my_db
 
-mariadb_image: mariadb:10.5.8-focal
+mariadb_image: mariadb:10.5.8-{{ ansible_distribution_release }}
 mariadb_vol: vault_mariabdb_vol
 mariadb_db: vault_mariadb_db
 

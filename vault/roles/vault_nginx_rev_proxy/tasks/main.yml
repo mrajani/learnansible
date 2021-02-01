@@ -143,3 +143,17 @@
 
 - include: unseal.yml
   when: '"Vault is initialized" in status.stdout'
+
+- name: Create a env file
+  file:
+    path: "{{ ansible_env.HOME }}/.vault_env"
+    state: touch
+    mode: '0755'
+
+- name: Write ENV variables to .vault_env
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.vault_env"
+    line: "{{ item }}"
+  with_items:
+    - "export VAULT_DEV_ROOT_TOKEN_ID=mytoken"
+    - "export VAULT_ADDR=http://127.0.0.1:8200"

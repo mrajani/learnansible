@@ -1,15 +1,13 @@
 ---
 - name: Reading unseal key contents
-  command: cat {{ item }}
-  register: unseal_keys
-  with_fileglob: "{{ unseal_keys_dir_output }}/*"
   delegate_to: localhost
   connection: local
-  become: no
+  shell: "cat {{ unseal_keys_dir_output }}/unseal_keys"
+  register: keyslist
 
-- name: Unseal vault with unseal keys
-  shell: |
-    vault operator unseal {{ item.stdout }}
+- name: Read Threshold (3) keys to unseal the vault
+  command: "vault operator unseal {{ item.1 }}"
+  with_indexed_items: "{{ keyslist.stdout_lines }}"
+  when: item.0 < 3
   environment:
     VAULT_ADDR: "http://127.0.0.1:8200"
-  with_items: "{{unseal_keys.results}}"

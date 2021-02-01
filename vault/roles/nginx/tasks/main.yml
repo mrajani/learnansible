@@ -17,6 +17,21 @@
     owner: "{{ ansible_env.USER }}"
     group: "{{ ansible_env.USER }}"
 
+- name: Create ssl directories for NGINX
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+
+- name: Copy NGINX Certs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/nginx/ssl/
+    mode: "0600"
+  with_items:
+    - ca.crt.pem
+    - vault.crt.pem
+    - vault.key.pem
+
 - name: Delete Default NGINX Site
   file:
     path: /etc/nginx/sites-enabled/default

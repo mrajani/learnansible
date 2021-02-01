@@ -24,3 +24,11 @@
     - name: Delete all images
       shell: docker image rm {{ item }}
       with_items: "{{ images.stdout_lines | list }}"
+
+    - name: Find Docker Volumes
+      shell: docker volume ls --format {{ "{{.Name}}" }}
+      register: vols
+
+    - name: Delete Docker Volumes
+      shell: docker volume rm {{ item }}
+      with_items: "{{ vols.stdout_lines | list }}"

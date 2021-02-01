@@ -14,29 +14,21 @@
 
 - name: Create unseal directories
   file:
-    path: "{{ unseal_keys_dir_output }}"
-    state: directory
+    path: "{{ item.path }}"
+    state: "{{ item.type }}"
   delegate_to: localhost
   connection: local
+  with_items:
+    - path: "{{ unseal_keys_dir_output }}"
+      type: absent
+    - path: "{{ unseal_keys_dir_output }}"
+      type: directory
+    - path: "{{ unseal_keys_dir_output }}/unseal_keys"
+      type: touch
 
-- name: Create root key directories
-  file:
-    path: "{{ root_token_dir_output }}"
-    state: directory
-  delegate_to: localhost
-  connection: local
-
-- name: Write unseal keys to files
-  copy:
-    dest: "{{ unseal_keys_dir_output }}/unseal_key_{{ item.0 }}"
-    content: "{{ item.1 }}\n"
-  with_indexed_items: "{{ vault_unseal_keys.unseal_keys_hex }}"
-  delegate_to: localhost
-  connection: local
-
-- name: Write unseal keys to files
+- name: Write unseal keys to file
   lineinfile:
-    path: "/tmp/unseal_keys"
+    path: "{{ unseal_keys_dir_output }}/unseal_keys"
     line: "{{ item.1 }}"
   with_indexed_items: "{{ vault_unseal_keys.unseal_keys_hex }}"
   delegate_to: localhost
@@ -45,7 +37,7 @@
 - name: Write root token to file
   copy:
     content: "{{ vault_unseal_keys.root_token }}"
-    dest: "{{root_token_dir_output}}/rootkey"
+    dest: "{{ unseal_keys_dir_output }}/rootkey"
   delegate_to: localhost
   connection: local
 
