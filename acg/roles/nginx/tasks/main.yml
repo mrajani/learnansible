@@ -23,6 +23,21 @@
     state: absent
   notify: restart nginx
 
+- name: Create ssl directories for NGINX
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+
+- name: Copy NGINX Certs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/nginx/ssl/
+    mode: "0600"
+  with_items:
+    - ca.crt.pem
+    - vault.crt.pem
+    - vault.key.pem
+
 - name: Copy NGINX site.conf
   template:
     src: site.conf.j2

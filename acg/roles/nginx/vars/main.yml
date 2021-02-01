@@ -1,2 +1,2 @@
-domain: thishost
+domain: vaultserver
 ansible_python_interpreter: '/usr/bin/env python3'
