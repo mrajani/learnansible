@@ -16,8 +16,8 @@
       file:
         path: "{{certs_folder}}"
         state: directory
-        group: "{{ ansible_user }}"
-        owner: "{{ ansible_user }}"
+        group: "{{ ansible_env.USER }}"
+        owner: "{{ ansible_env.USER }}"
 
     - name: Generate an OpenSSL private key
       openssl_privatekey:
@@ -39,3 +39,4 @@
         privatekey_path: "{{certs_folder}}/{{ server_hostname }}.key.pem"
         csr_path: "{{certs_folder}}/{{ server_hostname }}.csr"
         provider: selfsigned
+
