@@ -2,7 +2,7 @@
 - hosts: "{{ server_hosts | default('localhost') }}"
   roles:
     - { role: vault_nginx_rev_proxy, tags: ["vault", "consul"] }
-    - { role: nginx, port: 80, tags: [webserver] }
+    - { role: nginx, port: 22, tags: [webserver] }
     - { role: docker, tags: [docker] }
     - { role: init-vault-secrets, tags: [init-vault-secrets] }
   become: yes
